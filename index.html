@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jupiter AI</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #090d16;
+      color: #f1f5f9;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app {
+      width: min(1100px, 96vw);
+      height: min(820px, 92vh);
+      background: #0f172a;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.18);
+    }
+
+    .header {
+      height: 72px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      background: #0b1120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #e2e8f0;
+      letter-spacing: 0.5px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+    }
+
+    .chat-area {
+      height: calc(100% - 72px - 94px);
+      padding: 20px;
+      overflow-y: auto;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 55%);
+    }
+
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding-top: 40px;
+      color: #e2e8f0;
+    }
+
+    .welcome-logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      background: #0b1120;
+    }
+
+    .welcome-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .welcome h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: #94a3b8;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    .prompt-box {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .prompt {
+      background: #111827;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .input-bar {
+      height: 94px;
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
+      padding: 16px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #0f172a;
+    }
+
+    .input-bar input {
+      flex: 1;
+      height: 52px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 12px;
+      background: #0b1120;
+      color: white;
+      padding: 0 16px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .input-bar button {
+      height: 52px;
+      padding: 0 22px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: #09111f;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">
+          <img src="/logo.png" alt="Jupiter AI logo" />
+        </div>
+        <h1>JUPITER AI</h1>
+      </div>
+
+      <div class="tags">
+        <span class="tag">📚 Education</span>
+        <span class="tag">🔬 Science</span>
+        <span class="tag">💡 Daily Life</span>
+      </div>
+    </div>
+
+    <div class="chat-area">
+      <div class="welcome">
+        <div class="welcome-logo">
+          <img src="/logo.png" alt="Jupiter AI logo" />
+        </div>
+        <h2>Welcome to Jupiter AI</h2>
+        <p>
+          Your intelligent assistant for education, scientific answers, and practical daily-life help.
+          Ask anything or choose a quick prompt below.
+        </p>
+
+        <div class="prompt-box">
+          <div class="prompt">🔬 Explain quantum physics simply</div>
+          <div class="prompt">📚 Teach me study techniques</div>
+          <div class="prompt">💡 Help with my daily routine</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <input type="text" placeholder="Ask Jupiter anything..." />
+      <button>Send</button>
+    </div>
+  </div>
+</body>
+</html>
