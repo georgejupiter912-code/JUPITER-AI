@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jupiter AI</title>
+
+<style>
+:root {
+  --bg: #07111f;
+  --panel: #101c31;
+  --purple: #7c3aed;
+  --cyan: #22d3ee;
+  --text: #e5eefb;
+  --muted: #a7b7d5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg), var(--panel));
+  font-family: Arial, sans-serif;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+}
+
+.app {
+  width: min(100%, 520px);
+  height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #ffffff20;
+  border-radius: 22px;
+  background: #07111fef;
+  box-shadow: 0 20px 40px #0006;
+}
+
+header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #ffffff20;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+}
+
+h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+#chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.message {
+  display: flex;
+  margin: 0 0 12px;
+}
+
+.user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 88%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.bot .bubble {
+  background: #182438;
+  border-top-left-radius: 6px;
+}
+
+.user .bubble {
+  background: linear-gradient(135deg, var(--purple), #5b7cff);
+  border-top-right-radius: 6px;
+}
+
+footer {
+  padding: 12px;
+  border-top: 1px solid #ffffff20;
+  background: #0e1520;
+}
+
+.inputrow,
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.inputrow input {
+  flex: 1;
+  min-width: 0;
+}
+
+input,
+button,
+select {
+  font: inherit;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #ffffff20;
+}
+
+input,
+select {
+  background: #ffffff0c;
+  color: var(--text);
+}
+
+button {
+  background: #202c40;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.send {
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+}
+
+.buttons {
+  margin-top: 8px;
+}
+
+.buttons button {
+  flex: 1;
+}
+
+select {
+  width: 100%;
+  margin-top: 8px;
+}
+
+option {
+  background: #101c31;
+}
+
+#status {
+  font-size: 12px;
+  text-align: center;
+  color: var(--muted);
+  min-height: 16px;
+  margin: 8px 0 0;
+}
+
+.note {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin: 6px 0 0;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <div class="logo">J</div>
+  <div>
+    <h2>Jupiter AI</h2>
+    <p>Your personal assistant</p>
+  </div>
+</header>
+
+<main id="chat" aria-live="polite"></main>
+
+<footer>
+  <div class="inputrow">
+    <input id="question"
+           placeholder="Type or tap the mic…"
+           autocomplete="off">
+    <button class="send" id="send">Send</button>
+    <button id="mic" title="Speak">🎤</button>
+  </div>
+
+  <div class="buttons">
+    <button id="repeat">🔊 Read last answer</button>
+    <button id="stop">⏹ Stop voice</button>
+    <button id="clear">Clear chat</button>
+  </div>
+
+  <select id="voices" aria-label="Speaking voice">
+    <option value="">Default phone voice</option>
+  </select>
+
+  <p id="status">Ready. Tap 🎤 and allow microphone access if asked.</p>
+
+  <p class="note">
+    This version has built-in answers. Online AI and voice cloning are not connected yet.
+  </p>
+</footer>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('question');
+const status = document.getElementById('status');
+const voiceList = document.getElementById('voices');
+
+let lastAnswer = "Hello! I'm Jupiter AI. What can I help you with?";
+let recognition = null;
+
+function add(text, who) {
+  let row = document.createElement('div');
+  row.className = 'message ' + who;
+
+  let bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+
+  row.appendChild(bubble);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function loadVoices() {
+  if (!window.speechSynthesis) return;
+
+  let previous = voiceList.value;
+  let voices = speechSynthesis.getVoices();
+
+  voiceList.innerHTML =
+    '<option value="">Default phone voice</option>';
+
+  voices.forEach((voice, index) => {
+    let option = document.createElement('option');
+    option.value = index;
+    option.textContent = voice.name + ' (' + voice.lang + ')';
+    voiceList.appendChild(option);
+  });
+
+  if (previous) voiceList.value = previous;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) {
+    status.textContent = 'Voice output is not supported in this browser.';
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  let utterance = new SpeechSynthesisUtterance(text);
+  let voices = speechSynthesis.getVoices();
+
+  if (voiceList.value !== '' && voices[+voiceList.value]) {
+    utterance.voice = voices[+voiceList.value];
+  }
+
+  utterance.rate = 0.95;
+  utterance.onend = () => status.textContent = 'Ready';
+
+  speechSynthesis.speak(utterance);
+}
+
+function answer(s) {
+  let q = s.toLowerCase();
+
+  if (/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/.test(q))
+    return "Hello! I'm Jupiter AI. How can I help you today?";
+
+  if (q.includes('your name') || q.includes('who are you'))
+    return "I'm Jupiter AI, your personal assistant.";
+
+  if (q.includes('who made you') || q.includes('who created you'))
+    return "You are building me with HTML, CSS, and JavaScript.";
+
+  if (q.includes('how are you'))
+    return "I'm ready to help. Thanks for asking!";
+
+  if (q.includes('time'))
+    return "The time on this device is " +
+      new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) + ".";
+
+  if (q.includes('date'))
+    return "Today is " +
+      new Date().toLocaleDateString([], {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) + ".";
+
+  if (q.includes('joke'))
+    return "Why did the computer get cold? It left its Windows open!";
+
+  if (q.includes('thank'))
+    return "You're welcome!";
+
+  if (q.includes('weather'))
+    return "I can't check live weather yet. A weather service needs to be connected.";
+
+  if (q.includes('help') || q.includes('what can you do'))
+    return "You can ask the time or date, ask my name, say hello, or ask for a joke. I use built-in answers in this version.";
+
+  if (q.includes('my voice') || q.includes('sound like me'))
+    return "I can use voices available on your phone. To sound like you, we need a separate voice-cloning service and a recording of your voice.";
+
+  return "I don't know that answer yet. This version uses programmed replies, not a full online AI service. We can connect one later.";
+}
+
+function ask() {
+  let question = input.value.trim();
+
+  if (!question) return;
+
+  add(question, 'user');
+
+  lastAnswer = answer(question);
+  add(lastAnswer, 'bot');
+
+  input.value = '';
+  speak(lastAnswer);
+
+  status.textContent = 'Answer sent';
+}
+
+document.getElementById('send').onclick = ask;
+
+input.addEventListener('keydown', event => {
+  if (event.key === 'Enter') ask();
