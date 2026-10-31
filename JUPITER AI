@@ -1,0 +1,11 @@
+from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_KEY")
+
+response = client.audio.speech.create(
+    model="tts-1",
+    voice="alloy",
+    input="Hello, your AI project can now talk."
+)
+
+response.stream_to_file("output.mp3")
